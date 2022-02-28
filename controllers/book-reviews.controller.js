@@ -25,9 +25,8 @@ module.exports.bookReviewsController = {
 
   getReviews: async (req, res) => {
     try {
-      const reviews = await BookReview.find({ bookId: req.params.id })
-        .populate("bookId", { name: 1 })
-        .populate("reviews");
+      const reviews = await BookReview.find({ bookId: req.params.id });
+
       !reviews.length ? res.json("нет рецензий") : res.json(reviews);
     } catch (err) {
       res.json(`Не удалось вывести рецензию: ${err.message}`);

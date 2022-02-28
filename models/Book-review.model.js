@@ -7,12 +7,15 @@ const bookReviewSchema = mongoose.Schema({
     required: true,
   },
 
+  author: {
+    ref: "User",
+    type: mongoose.Schema.Types.ObjectId,
+  },
+
   review: {
     type: String,
     required: true,
   },
-
-  author: String,
 });
 
 const BookReview = mongoose.model("BookReview", bookReviewSchema);

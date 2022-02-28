@@ -8,7 +8,8 @@ const userSchema = mongoose.Schema({
 
   isBlocked: {
     type: Boolean,
-    required: true
+    required: true,
+    default: false,
   },
 
   rented_books: [

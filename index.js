@@ -11,4 +11,4 @@ mongoose
 
 app.use(require("./routes"));
 
-app.listen(3000, () => console.log("Сервер успешно запушен"))
+app.listen(3000, () => console.log("Сервер успешно запушен"));

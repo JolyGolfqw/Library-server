@@ -1,7 +1,7 @@
 const User = require("../models/User.model");
 const Book = require("../models/Book.model");
 
-module.exports.authorsController = {
+module.exports.usersController = {
   addUser: async (req, res) => {
     try {
       await User.create({
@@ -11,6 +11,55 @@ module.exports.authorsController = {
       res.json("Пользователь добавлен");
     } catch (err) {
       res.json(`Не удалось добавить пользователя: ${err.message}`);
+    }
+  },
+
+  addRenter: async (req, res) => {
+    try {
+      const user = await User.findById(req.params.userId);
+      const book = await Book.findById(req.body.book);
+
+      if (user.isBlocked) {
+        return res.json("Пользователь заблокирован");
+      }
+
+      if (user.rented_books.length > 3) {
+        return res.json("Нельзя арендовать больше трех книг");
+      }
+
+      if (book.rented) {
+        return res.json("Книга уже арендована");
+      }
+
+      await User.findByIdAndUpdate(req.params.userId, {
+        $addToSet: {
+          rented_books: req.body.book,
+        },
+      });
+
+      await Book.findByIdAndUpdate(req.body.book, {
+        $addToSet: { rented: req.params.userId },
+      });
+
+      res.json("Книга добавлена");
+    } catch (err) {
+      res.json(`Ошибка при добавлении книги: ${err.message}`);
+    }
+  },
+
+  removeRenter: async (req, res) => {
+    try {
+      await User.findByIdAndUpdate(req.params.userId, {
+        $pull: {
+          rented_books: req.body.book,
+        },
+      });
+      const book = await Book.findByIdAndUpdate(req.body.book, {
+        $pull: { rented: req.params.userId },
+      });
+      res.json("Книга возвращена");
+    } catch (err) {
+      res.json(`Ошибка при возвращении книги: ${err.message}`);
     }
   },
 
@@ -37,7 +86,7 @@ module.exports.authorsController = {
 
   getUsers: async (req, res) => {
     try {
-      const users = await User.find();
+      const users = await User.find().populate("rented_books", { name: 1 });
       res.json(users);
     } catch (err) {
       res.json(`Не удалось вывести авторов: ${err.message}`);
